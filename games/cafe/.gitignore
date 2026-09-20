@@ -6,3 +6,6 @@ build/
 .env.local
 *.log
 .DS_Store
+games/cafe/.friendsdk/
+games/cafe/.friendsdk-output.json
+

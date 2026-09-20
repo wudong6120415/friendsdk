@@ -1,0 +1,1357 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>🥚 Rare Friends Egg Smash — Vibeathon 2026</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+      background:
+        radial-gradient(circle at 20% 10%, rgba(255, 215, 0, 0.08), transparent 50%),
+        radial-gradient(circle at 80% 90%, rgba(255, 0, 110, 0.08), transparent 50%),
+        linear-gradient(180deg, #0a0a14 0%, #14142a 50%, #0a0a14 100%);
+      color: #fff;
+      min-height: 100vh;
+      padding: 12px;
+      overflow-x: hidden;
+    }
+
+    /* ==================================================== */
+    /* Layout: 3 columns                                  */
+    /* Left: rules | Center: game | Right: history      */
+    /* ==================================================== */
+    .layout {
+      display: grid;
+      grid-template-columns: 280px 1fr 320px;
+      gap: 12px;
+      max-width: 1320px;
+      margin: 0 auto;
+      min-height: calc(100vh - 24px);
+    }
+    @media (max-width: 1100px) {
+      .layout { grid-template-columns: 1fr; }
+      .side-left, .side-right { order: 2; }
+    }
+
+    /* Shared panel styles */
+    .panel {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 14px;
+      backdrop-filter: blur(10px);
+    }
+
+    .panel-title {
+      font-size: 12px;
+      font-weight: 900;
+      color: #ffd700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* ==================================================== */
+    /* HEADER (above columns)                              */
+    /* ==================================================== */
+    .header {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+      background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 0, 110, 0.1));
+      border: 1px solid rgba(255, 215, 0, 0.3);
+      border-radius: 12px;
+    }
+
+    .header-title {
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+    }
+    .header-title .highlight { color: #ffd700; }
+
+    .header-sub {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.6);
+      margin-top: 2px;
+    }
+
+    .header-stats {
+      display: flex;
+      gap: 8px;
+    }
+
+    .stat-pill {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 8px 14px;
+      border-radius: 8px;
+      text-align: center;
+      min-width: 90px;
+    }
+
+    .stat-pill-label {
+      font-size: 9px;
+      color: rgba(255, 255, 255, 0.5);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .stat-pill-value {
+      font-size: 16px;
+      font-weight: 900;
+      color: #ffd700;
+      margin-top: 2px;
+    }
+    .stat-pill-value.green { color: #00ff64; }
+    .stat-pill-value.red { color: #ff4444; }
+
+    /* ==================================================== */
+    /* LEFT PANEL: Game rules                              */
+    /* ==================================================== */
+    .side-left { display: flex; flex-direction: column; gap: 12px; }
+
+    .rules-section {
+      margin-bottom: 14px;
+    }
+
+    .rules-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .rules-section-title {
+      font-size: 11px;
+      font-weight: 900;
+      color: #ffd700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+
+    .rule-step {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 6px;
+      font-size: 11px;
+      line-height: 1.5;
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .rule-num {
+      background: linear-gradient(135deg, #ff006e, #ff4500);
+      color: white;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 900;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .rule-step b { color: #ffd700; }
+    .rule-step em { color: rgba(255, 255, 255, 0.5); font-style: normal; font-size: 10px; }
+
+    .pay-table {
+      width: 100%;
+      font-size: 10px;
+      border-collapse: collapse;
+      margin-top: 6px;
+    }
+
+    .pay-table th {
+      background: rgba(255, 215, 0, 0.15);
+      color: #ffd700;
+      padding: 5px 4px;
+      text-align: left;
+      font-weight: bold;
+      font-size: 10px;
+    }
+
+    .pay-table td {
+      padding: 4px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 10px;
+    }
+
+    .pay-table tr:hover {
+      background: rgba(255, 215, 0, 0.05);
+    }
+
+    .pay-table .prize-name {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .pay-table .prize-multiplier {
+      color: #00ff64;
+      font-weight: bold;
+    }
+
+    .pay-table .prize-prob {
+      color: rgba(255, 255, 255, 0.5);
+      text-align: right;
+    }
+
+    .pay-table .prize-payout {
+      color: #ffd700;
+      text-align: right;
+      font-weight: bold;
+    }
+
+    .note-box {
+      background: rgba(255, 215, 0, 0.06);
+      border: 1px solid rgba(255, 215, 0, 0.2);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 11px;
+      color: #ffd700;
+      line-height: 1.5;
+      margin-top: 10px;
+    }
+
+    /* ==================================================== */
+    /* CENTER: Game area                                  */
+    /* ==================================================== */
+    .center {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    /* Friend bar */
+    .friend-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: linear-gradient(135deg, rgba(255, 215, 0, 0.08), rgba(255, 0, 110, 0.05));
+      border: 1px solid rgba(255, 215, 0, 0.25);
+      border-radius: 10px;
+      padding: 10px 14px;
+    }
+
+    .friend-sprite {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      border: 2px solid;
+      flex-shrink: 0;
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    .friend-info { flex: 1; min-width: 0; }
+    .friend-name { font-size: 13px; font-weight: bold; }
+    .friend-id { font-size: 10px; color: rgba(255, 255, 255, 0.5); }
+
+    .friend-skill-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: bold;
+      margin-top: 4px;
+    }
+
+    .skill-novice     { background: #555; color: #fff; }
+    .skill-apprentice { background: #4a90e2; color: #fff; }
+    .skill-skilled    { background: linear-gradient(135deg, #7b68ee, #4a90e2); color: #fff; }
+    .skill-master     { background: linear-gradient(135deg, #ffd700, #ff4500); color: #2d0052; box-shadow: 0 0 8px rgba(255,215,0,0.5); }
+
+    .friend-bonus {
+      font-size: 10px;
+      color: #00ff64;
+      margin-top: 2px;
+    }
+
+    /* Friend picker */
+    .friend-picker {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .friend-pick-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      padding: 4px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 10px;
+    }
+
+    .friend-pick-btn:hover { border-color: #ffd700; }
+    .friend-pick-btn.selected {
+      background: rgba(255, 215, 0, 0.15);
+      border-color: #ffd700;
+      color: #ffd700;
+    }
+
+    /* Tier selector */
+    .tier-bar {
+      display: flex;
+      gap: 6px;
+    }
+
+    .tier-btn {
+      flex: 1;
+      padding: 8px 4px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: bold;
+      text-align: center;
+      transition: all 0.15s;
+    }
+
+    .tier-btn:hover:not(:disabled) {
+      border-color: #ffd700;
+      background: rgba(255, 215, 0, 0.08);
+    }
+
+    .tier-btn.selected {
+      border-color: #ffd700;
+      background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 69, 0, 0.2));
+      box-shadow: 0 0 12px rgba(255, 215, 0, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .tier-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .tier-btn .t-name {
+      display: block;
+      font-size: 9px;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 2px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .tier-btn .t-cost {
+      display: block;
+      font-size: 13px;
+    }
+
+    /* Game stage (egg grid) */
+    .game-stage {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at center, rgba(255, 215, 0, 0.05), transparent 70%);
+      border: 2px solid rgba(255, 215, 0, 0.3);
+      border-radius: 12px;
+      padding: 16px;
+      position: relative;
+      min-height: 320px;
+    }
+
+    .game-stage::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 10px;
+      background:
+        radial-gradient(circle at 30% 20%, rgba(255, 215, 0, 0.06), transparent 30%),
+        radial-gradient(circle at 70% 80%, rgba(255, 0, 110, 0.05), transparent 30%);
+      pointer-events: none;
+    }
+
+    /* Idle prompt */
+    .idle-prompt {
+      text-align: center;
+      z-index: 1;
+    }
+
+    .idle-emoji {
+      font-size: 56px;
+      margin-bottom: 8px;
+      animation: float 2s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .idle-text {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 14px;
+    }
+
+    /* Egg grid */
+    .egg-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      padding: 16px;
+      max-width: 360px;
+      z-index: 1;
+    }
+
+    .egg-grid.shaking .egg {
+      animation: wiggle 0.3s ease-in-out infinite;
+    }
+
+    @keyframes wiggle {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(-3deg); }
+      75% { transform: rotate(3deg); }
+    }
+
+    .egg {
+      width: 92px;
+      height: 110px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50% 50% 48% 48% / 60% 60% 40% 40%;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      font-size: 36px;
+      box-shadow: inset 0 -10px 20px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.4);
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .egg.default {
+      background: linear-gradient(180deg, #fff5e0 0%, #ffd700 100%);
+      border: 2px solid #b8860b;
+    }
+
+    .egg.grand {
+      background: linear-gradient(180deg, #fff 0%, #ffd700 50%, #ff4500 100%);
+      border: 2px solid #ff4500;
+      animation: shimmer 1.5s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); filter: brightness(1.1); }
+    }
+
+    .egg:hover:not(.disabled):not(.cracked) {
+      transform: translateY(-6px) scale(1.05);
+    }
+
+    .egg:active:not(.disabled):not(.cracked) {
+      transform: scale(0.95);
+    }
+
+    .egg.disabled {
+      cursor: default;
+    }
+
+    .egg.cracked {
+      animation: crack 0.5s ease-out forwards;
+    }
+
+    @keyframes crack {
+      0% { transform: scale(1); }
+      30% { transform: scale(1.3); }
+      60% { transform: scale(0.7) rotate(8deg); }
+      100% { transform: scale(0.95) rotate(0); }
+    }
+
+    .egg-num {
+      position: absolute;
+      top: -8px;
+      left: -8px;
+      background: #2d0052;
+      color: #ffd700;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: bold;
+      border: 1px solid #ffd700;
+    }
+
+    .egg-result {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: inherit;
+      font-weight: bold;
+      font-size: 13px;
+      text-align: center;
+      padding: 4px;
+      line-height: 1.2;
+    }
+
+    .result-nothing { background: rgba(60, 60, 60, 0.95); color: #aaa; }
+    .result-bronze  { background: linear-gradient(135deg, #cd7f32, #8b4513); color: #fff; }
+    .result-silver  { background: linear-gradient(135deg, #c0c0c0, #707070); color: #000; }
+    .result-gold    { background: linear-gradient(135deg, #ffd700, #daa520); color: #2d0052; }
+    .result-diamond { background: linear-gradient(135deg, #b9f2ff, #4a90e2); color: #fff; }
+    .result-epic    { background: linear-gradient(135deg, #ff006e, #8338ec); color: #fff; }
+    .result-mythic  { background: linear-gradient(135deg, #ff4500, #ffd700); color: #fff; animation: pulse 0.5s infinite; }
+    .result-grand   { background: linear-gradient(135deg, #ffd700, #ff4500, #ff006e); color: #fff; font-size: 11px; animation: pulse 0.3s infinite; }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.06); }
+    }
+
+    .egg-result small {
+      font-size: 8px;
+      font-weight: normal;
+      opacity: 0.95;
+      margin-top: 2px;
+    }
+
+    /* Action bar */
+    .action-bar {
+      display: flex;
+      gap: 8px;
+      z-index: 1;
+    }
+
+    .action-btn {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 900;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: transform 0.1s;
+    }
+
+    .crack-btn {
+      background: linear-gradient(135deg, #ff006e, #ff4500);
+      color: white;
+      box-shadow: 0 4px 16px rgba(255, 69, 0, 0.4);
+    }
+
+    .crack-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+    }
+
+    .crack-btn:disabled {
+      background: #555;
+      color: #aaa;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+
+    .reset-btn {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    /* Result overlay */
+    .result-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.92);
+      border-radius: 12px;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 10;
+    }
+
+    .result-overlay.show { display: flex; }
+
+    .result-emoji {
+      font-size: 64px;
+      margin-bottom: 8px;
+      animation: bounceIn 0.5s ease-out;
+    }
+
+    @keyframes bounceIn {
+      0% { transform: scale(0); }
+      60% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
+    .result-name {
+      font-size: 28px;
+      font-weight: 900;
+      margin-bottom: 6px;
+    }
+
+    .result-amount {
+      font-size: 24px;
+      font-weight: 900;
+      color: #00ff64;
+      margin-bottom: 4px;
+    }
+
+    .result-amount.negative { color: #ff4444; }
+
+    .result-meta {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 16px;
+    }
+
+    .result-meta b { color: #ffd700; }
+
+    .result-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    /* ==================================================== */
+    /* RIGHT PANEL: Win history                          */
+    /* ==================================================== */
+    .side-right { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+
+    .history-empty {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.4);
+      padding: 30px 10px;
+      font-size: 12px;
+    }
+
+    .history-empty-icon {
+      font-size: 36px;
+      margin-bottom: 8px;
+      opacity: 0.5;
+    }
+
+    .history-list {
+      max-height: 460px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .history-list::-webkit-scrollbar { width: 6px; }
+    .history-list::-webkit-scrollbar-track { background: transparent; }
+    .history-list::-webkit-scrollbar-thumb {
+      background: rgba(255, 215, 0, 0.3);
+      border-radius: 3px;
+    }
+
+    .history-item {
+      background: rgba(0, 0, 0, 0.3);
+      border-left: 3px solid;
+      border-radius: 4px;
+      padding: 6px 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .history-item.win { border-left-color: #00ff64; }
+    .history-item.loss { border-left-color: #ff4444; }
+    .history-item.jackpot { border-left-color: #ffd700; background: rgba(255, 215, 0, 0.08); }
+
+    .h-emoji {
+      font-size: 22px;
+      flex-shrink: 0;
+      width: 28px;
+      text-align: center;
+    }
+
+    .h-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .h-tier {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .h-prize {
+      font-weight: bold;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .h-amount {
+      font-family: ui-monospace, monospace;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+
+    .h-amount.positive { color: #00ff64; }
+    .h-amount.negative { color: #ff4444; }
+
+    .stats-summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .mini-stat {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      padding: 8px 6px;
+      text-align: center;
+    }
+
+    .mini-stat-label {
+      font-size: 9px;
+      color: rgba(255, 255, 255, 0.5);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .mini-stat-value {
+      font-size: 14px;
+      font-weight: 900;
+      margin-top: 2px;
+      font-family: ui-monospace, monospace;
+    }
+
+    .mini-stat-value.positive { color: #00ff64; }
+    .mini-stat-value.negative { color: #ff4444; }
+    .mini-stat-value.neutral { color: #ffd700; }
+
+    /* Confetti */
+    .confetti {
+      position: absolute;
+      pointer-events: none;
+      font-size: 20px;
+      animation: confetti-fall 2s ease-out forwards;
+    }
+
+    @keyframes confetti-fall {
+      0% { transform: translateY(0) rotate(0); opacity: 1; }
+      100% { transform: translateY(300px) rotate(720deg); opacity: 0; }
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #ffd700, #ff4500);
+      color: #2d0052;
+      padding: 12px 24px;
+      border-radius: 24px;
+      font-weight: bold;
+      z-index: 100;
+      animation: toastAnim 2.5s ease-out forwards;
+      box-shadow: 0 4px 24px rgba(255, 215, 0, 0.5);
+      font-size: 14px;
+    }
+
+    @keyframes toastAnim {
+      0% { transform: translate(-50%, -100px); opacity: 0; }
+      15% { transform: translate(-50%, 0); opacity: 1; }
+      85% { transform: translate(-50%, 0); opacity: 1; }
+      100% { transform: translate(-50%, -100px); opacity: 0; }
+    }
+
+    /* Footer */
+    .footer {
+      grid-column: 1 / -1;
+      text-align: center;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.4);
+      padding: 8px;
+      line-height: 1.6;
+    }
+
+    .footer a {
+      color: #ffd700;
+      text-decoration: none;
+    }
+    .footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- ==================== HEADER ==================== -->
+  <div class="header">
+    <div>
+      <div class="header-title">🥚 Rare Friends <span class="highlight">Egg Smash</span></div>
+      <div class="header-sub">Vibeathon 2026 · PvP 95.4% RTP · FriendSDK v0.1.2</div>
+    </div>
+    <div class="header-stats">
+      <div class="stat-pill">
+        <div class="stat-pill-label">Balance</div>
+        <div class="stat-pill-value" id="balance">10,000</div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-pill-label">Net P/L</div>
+        <div class="stat-pill-value" id="today-pnl">+0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== LEFT: RULES ==================== -->
+  <aside class="side-left">
+    <div class="panel">
+      <div class="panel-title">📖 How to Play</div>
+
+      <div class="rules-section">
+        <div class="rules-section-title">Steps</div>
+        <div class="rule-step"><div class="rule-num">1</div><div><b>Pick a Friend</b> as your barista <em>(simulated below)</em></div></div>
+        <div class="rule-step"><div class="rule-num">2</div><div><b>Choose a tier</b> from Tiny to Mega</div></div>
+        <div class="rule-step"><div class="rule-num">3</div><div>Click <b>CRACK</b> or press <b>SPACE</b></div></div>
+        <div class="rule-step"><div class="rule-num">4</div><div><b>9 eggs</b> appear — 1 holds your prize, 8 are empty</div></div>
+        <div class="rule-step"><div class="rule-num">5</div><div>Higher <b>Friend skill</b> boosts big-prize odds</div></div>
+      </div>
+
+      <div class="rules-section">
+        <div class="rules-section-title">5 Tier Entry</div>
+        <table class="pay-table">
+          <tr><th>Tier</th><th>Entry</th></tr>
+          <tr><td>🥚 Tiny</td><td>500 RF</td></tr>
+          <tr><td>🥚 Small</td><td>1,000 RF</td></tr>
+          <tr><td>🥚 Medium</td><td>2,000 RF</td></tr>
+          <tr><td>🥚 Large</td><td>5,000 RF</td></tr>
+          <tr><td>🥚 Mega</td><td>10,000 RF</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">💰 Prize Table · PvP 95.4% RTP</div>
+
+      <table class="pay-table">
+        <tr><th>Prize</th><th style="text-align:right;">Payout</th><th style="text-align:right;">Prob</th></tr>
+        <tr><td><span class="prize-name">💀 Empty</span></td><td class="prize-payout">0×</td><td class="prize-prob">36.00%</td></tr>
+        <tr><td><span class="prize-name">🥉 Bronze</span></td><td class="prize-payout">0.5×</td><td class="prize-prob">32.00%</td></tr>
+        <tr><td><span class="prize-name">🥈 Silver</span></td><td class="prize-payout">1×</td><td class="prize-prob">18.00%</td></tr>
+        <tr><td><span class="prize-name">🥇 Gold</span></td><td class="prize-payout">2×</td><td class="prize-prob">8.00%</td></tr>
+        <tr><td><span class="prize-name">💎 Diamond</span></td><td class="prize-payout">5×</td><td class="prize-prob">4.00%</td></tr>
+        <tr><td><span class="prize-name">🌟 Epic</span></td><td class="prize-payout">10×</td><td class="prize-prob">1.80%</td></tr>
+        <tr><td><span class="prize-name">🦄 Mythic</span></td><td class="prize-payout">30×</td><td class="prize-prob">0.18%</td></tr>
+        <tr><td><span class="prize-name">👑 GRAND</span></td><td class="prize-payout">100×</td><td class="prize-prob">0.02%</td></tr>
+      </table>
+
+      <div class="note-box">
+        <b>PvP:</b> Players bet each other. House takes flat 5% rake. Zero risk to house.
+        Math: 0.36·0 + 0.32·0.5 + 0.18·1 + 0.08·2 + 0.04·5 + 0.018·10 + 0.0018·30 + 0.0002·100 = <b>0.954</b> = 95.4% RTP.
+      </div>
+    </div>
+  </aside>
+
+  <!-- ==================== CENTER: GAME ==================== -->
+  <main class="center">
+    <!-- Friend bar -->
+    <div class="friend-bar">
+      <div class="friend-sprite" id="friend-sprite" style="border-color:#7b68ee;">🥷</div>
+      <div class="friend-info">
+        <div class="friend-name" id="friend-name">Café Master</div>
+        <div class="friend-id" id="friend-id">#7730 · Gen 1 · FriendSDK v0.1.2</div>
+        <span class="friend-skill-badge skill-skilled" id="friend-skill">Skilled Barista · Skill 85/100</span>
+        <div class="friend-bonus" id="skill-bonus">+17% barista bonus · Better odds on Epic/Mythic/GRAND</div>
+      </div>
+    </div>
+
+    <!-- Friend picker -->
+    <div class="panel" style="padding: 8px 12px;">
+      <div style="font-size:11px;color:rgba(255,255,255,0.6);margin-bottom:6px;">🤖 Demo Friend picker · Live mode uses FriendSDK picker from your wallet</div>
+      <div class="friend-picker" id="friend-picker"></div>
+    </div>
+
+    <!-- Tier selector -->
+    <div class="tier-bar">
+      <button class="tier-btn" data-tier="500" onclick="selectTier(500)">
+        <span class="t-name">🥚 Tiny</span><span class="t-cost">500</span>
+      </button>
+      <button class="tier-btn selected" data-tier="1000" onclick="selectTier(1000)">
+        <span class="t-name">🥚 Small</span><span class="t-cost">1,000</span>
+      </button>
+      <button class="tier-btn" data-tier="2000" onclick="selectTier(2000)">
+        <span class="t-name">🥚 Medium</span><span class="t-cost">2,000</span>
+      </button>
+      <button class="tier-btn" data-tier="5000" onclick="selectTier(5000)">
+        <span class="t-name">🥚 Large</span><span class="t-cost">5,000</span>
+      </button>
+      <button class="tier-btn" data-tier="10000" onclick="selectTier(10000)">
+        <span class="t-name">🥚 Mega</span><span class="t-cost">10,000</span>
+      </button>
+    </div>
+
+    <!-- Game stage -->
+    <div class="game-stage" id="game-stage">
+      <div class="egg-grid" id="egg-grid">
+        <div class="egg default" data-egg="0"><div class="egg-num">1</div></div>
+        <div class="egg default" data-egg="1"><div class="egg-num">2</div></div>
+        <div class="egg default" data-egg="2"><div class="egg-num">3</div></div>
+        <div class="egg default" data-egg="3"><div class="egg-num">4</div></div>
+        <div class="egg default" data-egg="4"><div class="egg-num">5</div></div>
+        <div class="egg default" data-egg="5"><div class="egg-num">6</div></div>
+        <div class="egg default" data-egg="6"><div class="egg-num">7</div></div>
+        <div class="egg default" data-egg="7"><div class="egg-num">8</div></div>
+        <div class="egg default" data-egg="8"><div class="egg-num">9</div></div>
+      </div>
+
+      <div class="action-bar">
+        <button class="action-btn crack-btn" id="crack-btn" onclick="crackEgg()">
+          🥚 CRACK — pay <span id="crack-cost">1,000</span> RF
+        </button>
+        <button class="action-btn reset-btn" onclick="resetGame()">↻ Reset</button>
+      </div>
+
+      <!-- Result overlay -->
+      <div class="result-overlay" id="result-overlay">
+        <div class="result-emoji" id="result-emoji">🥉</div>
+        <div class="result-name" id="result-name">Bronze</div>
+        <div class="result-amount" id="result-amount">+500 RF</div>
+        <div class="result-meta">
+          Net: <b id="result-net">-500 RF</b> · Session P/L: <b id="result-pnl">-500 RF</b> · <span id="result-friend">Master Barista</span>
+        </div>
+        <div class="result-actions">
+          <button class="action-btn crack-btn" onclick="closeResult()">CRACK ANOTHER</button>
+          <button class="action-btn reset-btn" onclick="resetGame()">↻ Change Friend</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ==================== RIGHT: HISTORY ==================== -->
+  <aside class="side-right">
+    <div class="panel">
+      <div class="panel-title">📊 Session Stats</div>
+      <div class="stats-summary">
+        <div class="mini-stat">
+          <div class="mini-stat-label">Plays</div>
+          <div class="mini-stat-value neutral" id="stat-plays">0</div>
+        </div>
+        <div class="mini-stat">
+          <div class="mini-stat-label">Won</div>
+          <div class="mini-stat-value positive" id="stat-wins">0</div>
+        </div>
+        <div class="mini-stat">
+          <div class="mini-stat-label">Win Rate</div>
+          <div class="mini-stat-value neutral" id="stat-winrate">0%</div>
+        </div>
+      </div>
+
+      <div style="font-size:11px;color:rgba(255,255,255,0.5);text-align:center;margin-bottom:12px;">
+        🎯 Best win: <b style="color:#ffd700;" id="stat-best">—</b>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:8px;">
+        <span style="color:rgba(255,255,255,0.6);">📜 Win History</span>
+        <span style="color:rgba(255,255,255,0.4);" id="history-count">0</span>
+      </div>
+      <div class="history-list" id="history-list">
+        <div class="history-empty">
+          <div class="history-empty-icon">🥚</div>
+          Crack your first egg to start your win history
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ==================== FOOTER ==================== -->
+  <div class="footer">
+    Demo · All RF simulated · No real tokens · FriendSDK v0.1.2 PvP Egg Smash
+    · <a href="https://github.com/spokesz/friendsdk" target="_blank">SDK source</a>
+    ·
+    <a href="https://github.com/spokesz/rarefriends-vibeathon/pull/10" target="_blank">Vibeathon PR #10</a>
+  </div>
+
+</div>
+
+<script>
+// ========================================================
+// PvP 95.4% RTP (verified mathematically)
+// ========================================================
+const PRIZES = [
+  { mult: 0,    prob: 0.36,    name: 'Empty',    emoji: '💀', cls: 'result-nothing' },
+  { mult: 0.5,  prob: 0.32,    name: 'Bronze',   emoji: '🥉', cls: 'result-bronze' },
+  { mult: 1,    prob: 0.18,    name: 'Silver',   emoji: '🥈', cls: 'result-silver' },
+  { mult: 2,    prob: 0.08,    name: 'Gold',     emoji: '🥇', cls: 'result-gold' },
+  { mult: 5,    prob: 0.04,    name: 'Diamond',  emoji: '💎', cls: 'result-diamond' },
+  { mult: 10,   prob: 0.018,   name: 'Epic',     emoji: '🌟', cls: 'result-epic' },
+  { mult: 30,   prob: 0.0018,  name: 'Mythic',   emoji: '🦄', cls: 'result-mythic' },
+  { mult: 100,  prob: 0.0002,  name: 'GRAND',    emoji: '👑', cls: 'result-grand' },
+];
+
+// Friend pool (simulated)
+const FRIEND_POOL = [
+  { id: 7730, name: 'Café Master',       emoji: '🥷', skill: 85, tier: 'skilled',    label: 'Skilled Barista · Skill 85' },
+  { id: 152,  name: 'Latte Specialist',  emoji: '☕', skill: 62, tier: 'skilled',    label: 'Skilled Barista · Skill 62' },
+  { id: 4221, name: 'Espresso Artist',   emoji: '🎨', skill: 28, tier: 'apprentice', label: 'Apprentice · Skill 28' },
+  { id: 9013, name: 'Bubble Tea Kid',    emoji: '🧋', skill: 15, tier: 'novice',     label: 'Novice · Skill 15' },
+  { id: 666,  name: 'Matcha Master',     emoji: '🍵', skill: 73, tier: 'skilled',    label: 'Skilled Barista · Skill 73' },
+  { id: 9999, name: 'Grand Barista',    emoji: '👑', skill: 95, tier: 'master',     label: 'Master Barista · Skill 95' },
+];
+
+// ========================================================
+// State
+// ========================================================
+let state = {
+  balance: 10000,
+  selectedTier: 1000,
+  selectedFriend: FRIEND_POOL[0],
+  busy: false,
+  history: [],         // [{tier, prize, emoji, name, amount, cls, win}]
+  totalWon: 0,
+  totalLost: 0,
+  totalSpent: 0,
+  bestWin: null,       // {amount, name, emoji}
+  winCount: 0,
+};
+
+// ========================================================
+// Init
+// ========================================================
+function init() {
+  renderFriend();
+  renderFriendPicker();
+  updateUI();
+  document.getElementById('crack-cost').textContent = state.selectedTier.toLocaleString('en-US');
+  // Egg click handlers
+  document.querySelectorAll('.egg').forEach(e => {
+    e.addEventListener('click', () => { if (!state.busy) crackEgg(); });
+  });
+}
+
+function renderFriend() {
+  const f = state.selectedFriend;
+  const sprite = document.getElementById('friend-sprite');
+  sprite.textContent = f.emoji;
+  const colors = {
+    novice:     '#888',
+    apprentice: '#4a90e2',
+    skilled:    '#7b68ee',
+    master:     '#ffd700',
+  };
+  sprite.style.borderColor = colors[f.tier];
+
+  document.getElementById('friend-name').textContent = f.name;
+  document.getElementById('friend-id').textContent = `#${f.id} · Generation 1+ · FriendSDK v0.1.2`;
+  const skillEl = document.getElementById('friend-skill');
+  skillEl.textContent = f.label;
+  skillEl.className = 'friend-skill-badge skill-' + f.tier;
+
+  const bonus = Math.round((f.skill / 100) * 20);
+  document.getElementById('skill-bonus').textContent =
+    `+${bonus}% barista bonus · Better odds on Epic / Mythic / GRAND`;
+}
+
+function renderFriendPicker() {
+  const picker = document.getElementById('friend-picker');
+  picker.innerHTML = '';
+  FRIEND_POOL.forEach(f => {
+    const btn = document.createElement('button');
+    btn.className = 'friend-pick-btn';
+    if (f.id === state.selectedFriend.id) btn.classList.add('selected');
+    btn.textContent = `${f.emoji} #${f.id} · Sk${f.skill}`;
+    btn.onclick = () => { state.selectedFriend = f; renderFriend(); renderFriendPicker(); };
+    picker.appendChild(btn);
+  });
+}
+
+// ========================================================
+// Game flow
+// ========================================================
+function selectTier(amount) {
+  if (state.busy) return;
+  state.selectedTier = amount;
+  document.querySelectorAll('.tier-btn').forEach(b => {
+    b.classList.toggle('selected', parseInt(b.dataset.tier) === amount);
+  });
+  document.getElementById('crack-cost').textContent = amount.toLocaleString('en-US');
+}
+
+function crackEgg() {
+  if (state.busy) return;
+  if (state.balance < state.selectedTier) {
+    showToast('❌ Insufficient balance!');
+    return;
+  }
+  state.busy = true;
+
+  // Deduct bet
+  state.balance -= state.selectedTier;
+  state.totalSpent += state.selectedTier;
+
+  // Friend skill bonus: re-weight probabilities
+  const skillFactor = state.selectedFriend.skill / 100;
+  const adjusted = PRIZES.map(p => {
+    const bonus = p.mult >= 5 ? skillFactor * 0.5 : 0;
+    return { ...p, prob: p.prob + bonus };
+  });
+  const total = adjusted.reduce((s, p) => s + p.prob, 0);
+  adjusted.forEach(p => p.prob /= total);
+
+  // Roll
+  const result = weightedRoll(adjusted);
+  const winAmount = Math.floor(state.selectedTier * result.mult);
+
+  // Update state
+  state.balance += winAmount;
+  state.totalWon += winAmount;
+  state.totalLost += state.selectedTier - winAmount;
+  if (winAmount > 0) state.winCount++;
+  if (!state.bestWin || winAmount > state.bestWin.amount) {
+    state.bestWin = { amount: winAmount, name: result.name, emoji: result.emoji };
+  }
+
+  // Record history
+  state.history.unshift({
+    tier: state.selectedTier,
+    prize: result.name,
+    emoji: result.emoji,
+    amount: winAmount - state.selectedTier,
+    cls: result.cls,
+    isJackpot: result.mult >= 30,
+  });
+  if (state.history.length > 30) state.history.length = 30;
+
+  // Animate
+  animateEggs(result, winAmount);
+}
+
+function weightedRoll(prizes) {
+  const r = Math.random();
+  let acc = 0;
+  for (const p of prizes) {
+    acc += p.prob;
+    if (r < acc) return p;
+  }
+  return prizes[prizes.length - 1];
+}
+
+function animateEggs(result, winAmount) {
+  const eggs = document.querySelectorAll('.egg');
+  eggs.forEach(e => {
+    e.classList.add('disabled');
+    e.classList.remove('default', 'grand');
+  });
+
+  // Pick winning egg
+  const targetEgg = Math.floor(Math.random() * 9);
+  eggs[targetEgg].classList.add('grand');
+
+  // Sequential cracking
+  const order = [0, 1, 2, 3, 4, 5, 6, 7, 8].sort(() => Math.random() - 0.5);
+  const delay = 140;
+  order.forEach((i, idx) => {
+    setTimeout(() => {
+      eggs[i].classList.add('cracked');
+      eggs[i].innerHTML = `<div class="egg-num">${i + 1}</div>`;
+      if (i === targetEgg) {
+        // This is the winner — reveal at the end
+      } else {
+        eggs[i].innerHTML += `<div class="egg-result ${result.cls}">${result.emoji}<small>Empty</small></div>`;
+      }
+    }, idx * delay);
+  });
+
+  // Show result overlay
+  setTimeout(() => {
+    eggs[targetEgg].innerHTML =
+      `<div class="egg-num">${targetEgg + 1}</div>` +
+      `<div class="egg-result ${result.cls}">${result.emoji}<small>${result.name}</small></div>`;
+    showResult(result, winAmount);
+    if (result.mult >= 5) spawnConfetti();
+  }, order.length * delay + 250);
+}
+
+function showResult(result, winAmount) {
+  const f = state.selectedFriend;
+  document.getElementById('result-emoji').textContent = result.emoji;
+  document.getElementById('result-name').textContent = result.name;
+
+  const amountEl = document.getElementById('result-amount');
+  amountEl.textContent = (winAmount > 0 ? '+' : '') + winAmount.toLocaleString('en-US') + ' RF';
+  amountEl.className = 'result-amount' + (winAmount === 0 ? ' negative' : '');
+
+  const net = winAmount - state.selectedTier;
+  const netEl = document.getElementById('result-net');
+  netEl.textContent = (net >= 0 ? '+' : '') + net.toLocaleString('en-US') + ' RF';
+  netEl.style.color = net >= 0 ? '#00ff64' : '#ff4444';
+
+  const pnl = state.totalWon - state.totalSpent;
+  const pnlEl = document.getElementById('result-pnl');
+  pnlEl.textContent = (pnl >= 0 ? '+' : '') + pnl.toLocaleString('en-US') + ' RF';
+  pnlEl.style.color = pnl >= 0 ? '#00ff64' : '#ff4444';
+
+  document.getElementById('result-friend').textContent = f.label;
+
+  document.getElementById('result-overlay').classList.add('show');
+
+  updateUI();
+  renderHistory();
+
+  if (result.mult >= 10) {
+    showToast(`${result.emoji} ${result.name}! +${winAmount.toLocaleString()} RF`);
+  }
+}
+
+function closeResult() {
+  document.getElementById('result-overlay').classList.remove('show');
+  resetEggs();
+  state.busy = false;
+}
+
+function resetEggs() {
+  const eggs = document.querySelectorAll('.egg');
+  eggs.forEach((e, i) => {
+    e.classList.remove('disabled', 'cracked', 'grand');
+    e.classList.add('default');
+    e.innerHTML = `<div class="egg-num">${i + 1}</div>`;
+  });
+}
+
+function resetGame() {
+  state.balance = 10000;
+  state.history = [];
+  state.totalWon = 0;
+  state.totalLost = 0;
+  state.totalSpent = 0;
+  state.bestWin = null;
+  state.winCount = 0;
+  document.getElementById('result-overlay').classList.remove('show');
+  resetEggs();
+  updateUI();
+  renderHistory();
+  showToast('Game reset!');
+}
+
+// ========================================================
+// UI update
+// ========================================================
+function updateUI() {
+  document.getElementById('balance').textContent = state.balance.toLocaleString('en-US');
+  const pnl = state.totalWon - state.totalSpent;
+  const pnlEl = document.getElementById('today-pnl');
+  pnlEl.textContent = (pnl >= 0 ? '+' : '') + pnl.toLocaleString('en-US');
+  pnlEl.className = 'stat-pill-value ' + (pnl >= 0 ? 'green' : 'red');
+
+  // Stats panel
+  document.getElementById('stat-plays').textContent = state.history.length;
+  document.getElementById('stat-wins').textContent = state.winCount;
+  const winRate = state.history.length > 0 ? Math.round(state.winCount / state.history.length * 100) : 0;
+  document.getElementById('stat-winrate').textContent = winRate + '%';
+  document.getElementById('stat-best').textContent = state.bestWin
+    ? `${state.bestWin.emoji} ${state.bestWin.amount.toLocaleString()}`
+    : '—';
+
+  // Update history count
+  document.getElementById('history-count').textContent = state.history.length;
+}
+
+function renderHistory() {
+  const list = document.getElementById('history-list');
+  if (state.history.length === 0) {
+    list.innerHTML = `
+      <div class="history-empty">
+        <div class="history-empty-icon">🥚</div>
+        Crack your first egg to start your win history
+      </div>`;
+    return;
+  }
+  list.innerHTML = state.history.map((h, i) => {
+    const sign = h.amount >= 0 ? '+' : '';
+    const cls = h.isJackpot ? 'jackpot' : (h.amount >= 0 ? 'win' : 'loss');
+    const amtCls = h.amount >= 0 ? 'positive' : 'negative';
+    const tierStr = h.tier.toLocaleString();
+    return `
+      <div class="history-item ${cls}">
+        <div class="h-emoji">${h.emoji}</div>
+        <div class="h-info">
+          <div class="h-tier">🥚 ${tierStr} RF · ${h.prize}</div>
+          <div class="h-prize">${h.isJackpot ? '🏆 ' : ''}${h.prize}</div>
+        </div>
+        <div class="h-amount ${amtCls}">${sign}${h.amount.toLocaleString()}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function spawnConfetti() {
+  const emojis = ['🎉', '✨', '⭐', '💰', '🎊', '💎', '🥚'];
+  const stage = document.getElementById('game-stage');
+  for (let i = 0; i < 20; i++) {
+    const conf = document.createElement('div');
+    conf.className = 'confetti';
+    conf.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    conf.style.left = (Math.random() * 100) + '%';
+    conf.style.top = '20%';
+    conf.style.animationDelay = (Math.random() * 0.5) + 's';
+    stage.appendChild(conf);
+    setTimeout(() => conf.remove(), 2500);
+  }
+}
+
+function showToast(text) {
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = text;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2500);
+}
+
+// ========================================================
+// Keyboard
+// ========================================================
+document.addEventListener('keydown', (e) => {
+  if (e.code === 'Space' && !state.busy) {
+    e.preventDefault();
+    crackEgg();
+  } else if (e.code === 'Escape' && state.busy) {
+    closeResult();
+  } else if (e.code === 'KeyR' && !state.busy) {
+    resetGame();
+  } else if (!state.busy) {
+    const tierMap = { '1': 500, '2': 1000, '3': 2000, '4': 5000, '5': 10000 };
+    if (tierMap[e.key]) selectTier(tierMap[e.key]);
+  }
+});
+
+init();
+</script>
+
+</body>
+</html>
