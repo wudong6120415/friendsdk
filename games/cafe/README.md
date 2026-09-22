@@ -153,15 +153,17 @@ A standalone HTML page that runs the full egg-smash loop with a simulated Friend
 
 ### 2. Live FriendSDK preview (Robinhood Wallet + Generations NFT)
 
-**https://rocky-motivation-sussex-influence.trycloudflare.com/cafe/game.html**
+**https://rocky-motivation-sussex-influence.trycloudflare.com/cafe/index.html**
 
-The FriendSDK v0.1.2 preview build reads Friend data from Robinhood mainnet (chainId 4663) via the SDK's hardwired NFT ownership gate. To play live, you must:
+The FriendSDK v0.1.2 entry point with wallet integration, Friend picker, and a top toolbar (`Local preview` / `Choose Friend` / `Friend wallet`). Open in a browser with an EIP-1193 wallet to:
 
 1. Install [Robinhood Wallet](https://robinhood.com/us/en/crypto/wallet/) browser extension, **and**
 2. Hold at least one **Generations NFT (generation 1+)** in the connected wallet, **and**
 3. Switch your wallet network to **Robinhood mainnet (chainId 4663)**.
 
-> HTTPS is required (Cloudflare Tunnel) — Robinhood Wallet and other EIP-1193 providers only inject into secure contexts.
+Then click **Choose Friend** in the toolbar to select one of your Generations NFTs. The SDK verifies ownership on chain (hardwired Generations, generation 1+) before play.
+
+> HTTPS is required (Cloudflare Tunnel) — Robinhood Wallet and other EIP-1193 providers only inject into secure contexts. `game.html` is the SDK's *internal* iframe target and shows "Waiting for your Friend…" when opened directly; always enter through `index.html`.
 
 Preview rolls are simulated; no RF is actually spent or earned. No live contract is bound to this preview.
 

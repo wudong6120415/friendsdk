@@ -1,32 +1,15 @@
 {
-  "name": "Rare Friends Café",
-  "consumable": "Cup of coffee",
-  "price": "1",
+  "name": "Rare Friends Egg Smash",
+  "consumable": "Cracked Egg",
+  "price": "1000000000000000",
   "outcomes": [
-    {
-      "name": "Furious customer",
-      "chanceBps": 500,
-      "reward": "0"
-    },
-    {
-      "name": "Disappointed customer",
-      "chanceBps": 1500,
-      "reward": "100000000000000000"
-    },
-    {
-      "name": "Satisfied customer",
-      "chanceBps": 4000,
-      "reward": "300000000000000000"
-    },
-    {
-      "name": "Happy customer",
-      "chanceBps": 3000,
-      "reward": "500000000000000000"
-    },
-    {
-      "name": "Delighted customer",
-      "chanceBps": 1000,
-      "reward": "1000000000000000000"
-    }
+    { "name": "Empty",       "chanceBps": 3600, "reward": "0" },
+    { "name": "Bronze",      "chanceBps": 3200, "reward": "500000000000000000" },
+    { "name": "Silver",      "chanceBps": 1800, "reward": "1000000000000000000" },
+    { "name": "Gold",        "chanceBps": 800,  "reward": "2000000000000000000" },
+    { "name": "Diamond",     "chanceBps": 400,  "reward": "5000000000000000000" },
+    { "name": "Epic",        "chanceBps": 180,  "reward": "10000000000000000000" },
+    { "name": "Mythic",      "chanceBps": 18,   "reward": "30000000000000000000" },
+    { "name": "GRAND PRIZE", "chanceBps": 2,    "reward": "100000000000000000000" }
   ]
 }
