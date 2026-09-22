@@ -363,13 +363,15 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
+      gap: 12px;
+      padding: 16px;
       background: radial-gradient(circle at center, rgba(255, 215, 0, 0.05), transparent 70%);
       border: 2px solid rgba(255, 215, 0, 0.3);
       border-radius: 12px;
-      padding: 16px;
       position: relative;
-      min-height: 320px;
+      min-height: 480px;
+      overflow: hidden;
     }
 
     .game-stage::before {
@@ -410,9 +412,9 @@
     .egg-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      padding: 16px;
-      max-width: 360px;
+      gap: 10px;
+      padding: 12px;
+      max-width: 300px;
       z-index: 1;
     }
 
@@ -427,8 +429,8 @@
     }
 
     .egg {
-      width: 92px;
-      height: 110px;
+      width: 76px;
+      height: 92px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -437,10 +439,69 @@
       cursor: pointer;
       transition: all 0.2s;
       position: relative;
-      font-size: 36px;
-      box-shadow: inset 0 -10px 20px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.4);
+      font-size: 32px;
+      box-shadow:
+        inset 0 -8px 16px rgba(0, 0, 0, 0.3),
+        inset 3px 3px 10px rgba(255, 255, 255, 0.4),
+        0 4px 12px rgba(0, 0, 0, 0.4);
       user-select: none;
       -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Highlight first egg (1 holds prize) - data-egg="0" is egg #1 */
+    .egg[data-egg="0"].default,
+    .egg-grid > .egg:nth-child(1).default {
+      box-shadow:
+        inset 0 -8px 16px rgba(0, 0, 0, 0.3),
+        inset 3px 3px 10px rgba(255, 255, 255, 0.5),
+        0 4px 12px rgba(0, 0, 0, 0.4),
+        0 0 20px rgba(255, 215, 0, 0.6),
+        0 0 36px rgba(255, 215, 0, 0.3);
+    }
+
+    /* Star indicator on first egg */
+    .egg[data-egg="0"].default::before,
+    .egg-grid > .egg:nth-child(1).default::before {
+      content: '★';
+      position: absolute;
+      top: -12px;
+      right: -12px;
+      width: 26px;
+      height: 26px;
+      background: linear-gradient(135deg, #ffd700, #ff4500);
+      color: #2d0052;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 900;
+      box-shadow: 0 0 12px rgba(255, 215, 0, 0.9);
+      animation: starPulse 1.5s infinite;
+      z-index: 3;
+    }
+
+    /* "PRIZE EGG" hint text under first egg */
+    .egg[data-egg="0"].default::after {
+      content: '💎 PRIZE EGG';
+      position: absolute;
+      bottom: -22px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 9px;
+      font-weight: 900;
+      color: #ffd700;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 215, 0, 0.5);
+      white-space: nowrap;
+      z-index: 3;
+    }
+
+    @keyframes starPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.15); }
     }
 
     .egg.default {
@@ -806,6 +867,28 @@
       text-decoration: none;
     }
     .footer a:hover { text-decoration: underline; }
+
+    /* Keyboard hints bar */
+    .kb-hints {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.6);
+      margin-top: 8px;
+    }
+    .kb-hints kbd {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 3px;
+      padding: 1px 6px;
+      font-family: ui-monospace, monospace;
+      font-size: 9px;
+      margin-right: 4px;
+      color: #ffd700;
+    }
   </style>
 </head>
 <body>
@@ -936,6 +1019,13 @@
           🥚 CRACK — pay <span id="crack-cost">1,000</span> RF
         </button>
         <button class="action-btn reset-btn" onclick="resetGame()">↻ Reset</button>
+      </div>
+
+      <div class="kb-hints">
+        <span><kbd>SPACE</kbd> Crack</span>
+        <span><kbd>1-5</kbd> Tier</span>
+        <span><kbd>R</kbd> Reset</span>
+        <span><kbd>ESC</kbd> Close</span>
       </div>
 
       <!-- Result overlay -->

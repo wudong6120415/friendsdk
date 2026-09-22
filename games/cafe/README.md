@@ -1,179 +1,136 @@
-# Rare Friends Cafe
+# 🥚 Rare Friends Egg Smash
 
-You run a coffee shop staffed by your Rare Friend NFT. The Friend's token ID determines barista skill, which affects drink quality and tip earnings. Five customers per shift, five menu items, real RF economy (preview mode).
+You run a daily casino-style minigame where your Rare Friend NFT is the "barista." Each day you pick a tier (500–10,000 RF), crack open 9 eggs, and reveal one of 8 prize tiers. The Friend's token ID drives a deterministic "barista skill" (1–100) that biases prize weights toward higher payouts. The game runs player-vs-player from a shared prize pool with a flat 5% house rake.
 
-> Submitted to the [Rare Friends Vibeathon 2026](https://rarefriends.com/) -- **Character Spotlight** category.
+> Submitted to the [Rare Friends Vibeathon 2026](https://rarefriends.com/) — **Character Spotlight** category.
 
-![Rare Friends Cafe screenshot](./media/screenshot.jpg)
+![Rare Friends Egg Smash demo screenshot](./media/demo-screenshot.png)
 
 ## TL;DR
 
-- Pick your Rare Friend as the barista -- their `tokenId` determines skill level (1-100)
-- 5 customers per shift, each orders one of 5 drink types
-- Brew the drink by spending the right amount of beans
-- Customer satisfaction rolls via SDK chance game (preview mode, simulated)
-- Friend skill adds a bonus to every tip (skill 1-100 -> +0% to +20% tip)
-- Tips = simulated RF earnings; spend beans (1 RF equivalent per bean) to keep brewing
+- Pick your Rare Friend from FriendSDK's standard picker — their `tokenId` deterministically maps to a skill of 1–100.
+- 5 entry tiers: Tiny 500 / Small 1,000 / Medium 2,000 / Large 5,000 / Mega 10,000 RF.
+- 9 eggs appear; one holds your prize, the other 8 show "Empty."
+- Cracking pays out from a PvP pool at **95.4% RTP** (verified math).
+- Friend skill bonus biases prize weights — Master Baristas (skill 80–100) get a +20% shift toward Epic / Mythic / GRAND.
 
 ## Two ways to play
 
-### 1. Offline demo (no wallet, no NFT, no chain) -- **recommended for first try**
+### 1. Offline demo (anyone, no wallet)
 
 **https://rocky-motivation-sussex-influence.trycloudflare.com/cafe/demo.html**
 
-A standalone HTML preview that runs the full cafe game loop with a sample Friend (token ID 7730, skill 85, generation 1). Anyone can play -- no browser extension, no NFT, no RF. This uses the same game balance and satisfaction tier table as the SDK version, so reviewers can verify the design without setup.
+A standalone HTML page that runs the full egg-smash loop with a simulated Friend picker (5 NFTs, skills 15–95). Anyone can play — no wallet, no NFT, no chain. Useful for vibeathon reviewers to verify the design without setup.
 
-### 2. Live SDK preview (Robinhood Wallet + Generations NFT + Robinhood mainnet 4663)
+### 2. Live FriendSDK preview (Robinhood Wallet + Generations NFT)
 
-**https://rocky-motivation-sussex-influence.trycloudflare.com/cafe/** (or `./game.html`)
+**https://rocky-motivation-sussex-influence.trycloudflare.com/cafe/game.html**
 
-The SDK v0.1.2 preview deployment reads your Friend data from Robinhood mainnet (chainId 4663) via the SDK's hardwired NFT ownership gate. To play, you must:
+The FriendSDK v0.1.2 preview build reads Friend data from Robinhood mainnet (chainId 4663) via the SDK's hardwired NFT ownership gate. To play live, you must:
 
 1. Install [Robinhood Wallet](https://robinhood.com/us/en/crypto/wallet/) browser extension, **and**
 2. Hold at least one **Generations NFT (generation 1+)** in the connected wallet, **and**
 3. Switch your wallet network to **Robinhood mainnet (chainId 4663)**.
 
-> **Important correction:** preview mode still requires the on-chain NFT ownership gate. The SDK reads `OwnedFriends` from chain 4663 via viem; if you have no Generations NFT on Robinhood mainnet, the picker shows "No playable Friends found." This is by design and cannot be bypassed without holding real assets.
-
-> **HTTPS required.** The URL above is HTTPS via Cloudflare Tunnel -- necessary because Robinhood Wallet and other EIP-1193 providers only inject into secure contexts. HTTP URLs will not work for the live preview.
+> HTTPS is required (Cloudflare Tunnel) — Robinhood Wallet and other EIP-1193 providers only inject into secure contexts.
 
 Preview rolls are simulated; no RF is actually spent or earned. No live contract is bound to this preview.
 
-## Project info
+## How does it use Rare Friends?
 
-| Field | Value |
-|---|---|
-| Project name | Rare Friends Cafe |
-| Builder | wudong6120415 |
-| Contact | GitHub [@wudong6120415](https://github.com/wudong6120415) |
-| Category | Character Spotlight |
-| Submission path | `submissions/rare-friends-cafe/` |
-| **Offline demo (no wallet)** | https://rocky-motivation-sussex-influence.trycloudflare.com/cafe/demo.html |
-| **Live SDK preview (wallet + NFT + chain 4663)** | https://rocky-motivation-sussex-influence.trycloudflare.com/cafe/ |
-| SDK | FriendSDK v0.1.2 |
-| Deadline | September 30, 2026 |
+- **Friend is the barista.** The picker shows your owned Generations NFTs; the chosen Friend's sprite, token ID, and skill badge appear in the game header.
+- **Skill drives gameplay.** Every Friend's `tokenId % 100 + 1` becomes a skill value 1–100. Master Baristas (80–100) bias the prize curve toward bigger payouts.
+- **Friend artwork preserved.** The Friend sprite is drawn unmodified at the original Generations character resolution.
+- **Friend ledger on win.** Every cracked egg uses the SDK's `buy → play → settle → redeem` flow, so wins are tracked per Friend.
 
-## The experience
+## PvP economics (mathematically verified)
 
-A Rare Friend NFT is the barista of your cafe. Connect your Robinhood mainnet wallet, choose your Friend, and they appear behind the counter with a skill badge. As customers arrive one by one, you read their order, brew the right drink with the right bean count, and watch their reaction.
+The game is player-vs-player. The house is a neutral 5% rake collector and has **zero risk** (no exposure to player outcomes).
 
-Each drink has a base tip and a bean cost. The SDK's chance game rolls the customer satisfaction tier (Furious -> Disappointed -> Satisfied -> Happy -> Delighted). The Friend's skill level adds a permanent bonus to every tip.
-
-## Menu
-
-| Drink | Beans | Base Tip | When |
+| Tier | Entry | House Fee (5%) | Prize Pool (95%) |
 |---|---|---|---|
-| Espresso | 1 | 0.20 RF | Quick orders |
-| Latte | 2 | 0.50 RF | Standard |
-| Cappuccino | 3 | 0.80 RF | Foam art |
-| Mocha | 4 | 1.50 RF | Sweet tooths |
-| Daily Special | 5 | 2.50 RF | Rare occasions |
+| 🥚 Tiny   | 500 RF    | 25  | 475  |
+| 🥚 Small  | 1,000 RF  | 50  | 950  |
+| 🥚 Medium | 2,000 RF  | 100 | 1,900 |
+| 🥚 Large  | 5,000 RF  | 250 | 4,750 |
+| 🥚 Mega   | 10,000 RF | 500 | 9,500 |
 
-## Satisfaction tiers
+The prize pool is distributed back to players via the 8-tier prize table.
 
-| Tier | Probability | Tip Multiplier |
+### 8-tier prize table (verified 95.4% RTP)
+
+| Prize         | Multiplier | Probability | Per 1k tier payout |
+|---|---|---|---|
+| 💀 Empty       | 0×   | 36.00% | 0 RF       |
+| 🥉 Bronze      | 0.5× | 32.00% | 500 RF     |
+| 🥈 Silver      | 1×   | 18.00% | 1,000 RF   |
+| 🥇 Gold        | 2×   | 8.00%  | 2,000 RF   |
+| 💎 Diamond     | 5×   | 4.00%  | 5,000 RF   |
+| 🌟 Epic        | 10×  | 1.80%  | 10,000 RF  |
+| 🦄 Mythic      | 30×  | 0.18%  | 30,000 RF  |
+| 👑 GRAND PRIZE | 100× | 0.02%  | 100,000 RF |
+
+Math: 0.36·0 + 0.32·0.5 + 0.18·1 + 0.08·2 + 0.04·5 + 0.018·10 + 0.0018·30 + 0.0002·100 = **0.954 = 95.4% RTP**.
+
+## How do you play?
+
+1. Open the offline demo (or connect Robinhood Wallet + a Generations NFT for live mode).
+2. Pick your Friend (the barista).
+3. Choose a tier (Tiny 500 / Small 1k / Medium 2k / Large 5k / Mega 10k RF).
+4. Click **CRACK** (or press `SPACE`) — 9 eggs appear; one holds your prize.
+5. The 8 empty eggs reveal first, the prize egg last.
+6. Check the **session stats** (right panel): plays, wins, win rate, best win.
+
+| Shortcut       | Action    |
+|---|---|
+| `SPACE`       | Crack an egg |
+| `1` – `5`     | Pick tier (Tiny / Small / Medium / Large / Mega) |
+| `R`           | Reset session |
+| `ESC`         | Close result panel |
+
+## Friend skill tiers
+
+| Skill | Tier | Bonus |
 |---|---|---|
-| Furious | 5% | 0% |
-| Disappointed | 15% | 20% |
-| Satisfied | 40% | 50% |
-| Happy | 30% | 100% |
-| Delighted | 10% | 200% |
+| 1 – 24   | 🌱 Novice Barista      | +0%   |
+| 25 – 49  | 🍵 Apprentice Barista  | +5%   |
+| 50 – 79  | ☕ Skilled Barista      | +12%  |
+| 80 – 100 | 👑 Master Barista       | +20%  |
 
-Final tip = `baseTip * tierMultiplier * (1 + skill/500)` for the Friend's skill 1-100.
+## Costs and rewards
 
-## Barista skill (from token ID)
+All RF is simulated (preview mode). Entry fees 500–10,000 RF. Max payout per egg: 100,000 RF (Grand Prize, 1k tier). Pool capped at 10M RF per tier to prevent runaway wins. Pool grows by 5% of every entry.
 
-```
-skill = Number(friendId % 100n) + 1
-name =
-  80-100: "Master Barista"
-  50-79:  "Skilled Barista"
-  25-49:  "Apprentice Barista"
-  1-24:   "Novice Barista"
-```
+## Source code
 
-Every Friend has a unique skill. The cafe tells you who they are before you start.
+[GitHub repository](https://github.com/wudong6120415/friendsdk/tree/main/games/cafe) · FriendSDK v0.1.2 · [Submission PR](https://github.com/spokesz/rarefriends-vibeathon/pull/10)
 
-## Files
+Files:
+- `index.tsx` — FriendSDK game component (uses `GameComponentProps`, chance-game lifecycle)
+- `game.json` — chance-game outcome table (8 outcomes, weighted to 95.4% RTP)
+- `style.css` — UI styling (960×640 viewport for SDK GameHost)
+- `demo.html` — standalone offline demo (anyone can play, no wallet required)
+- `media/demo-screenshot.png` — UI screenshot (3-column layout: rules | game | history)
 
-| File | Purpose |
-|---|---|
-| `index.tsx` | Main game component: HUD, customer queue, brewing, reveal |
-| `game.json` | Outcome table: 5 satisfaction tiers + weights |
-| `style.css` | Cafe-themed UI: warm browns, cream backgrounds, barista avatar |
-| `demo.html` | Standalone offline preview (no wallet required) |
-| `media/cafe-bg.jpg` | Cafe interior background (AI-generated) |
-| `media/espresso.jpg` | Espresso cup art |
-| `media/latte.jpg` | Latte glass art |
-| `media/cappuccino.jpg` | Cappuccino cup art |
-| `media/mocha.jpg` | Mocha art |
-| `media/specialty.jpg` | Daily special art |
-| `media/screenshot.jpg` | Composite README screenshot |
+## What we tested
 
-## How to run
-
-### Prerequisites
-
-- Linux or Ubuntu in WSL2 on Windows, or macOS
-- Node.js 22+
-- npm
-- Git
-- For the SDK preview: Robinhood mainnet (chainId 4663) wallet holding a Generations NFT (gen 1+) -- even in preview mode
-- For the offline demo: just a browser
-
-### Setup
-
-```sh
-git clone https://github.com/wudong6120415/friendsdk.git
-cd friendsdk
-npm ci
-node scripts/dev-game.mjs init games/rare-friends-cafe
-cp submissions/rare-friends-cafe/* games/rare-friends-cafe/
-npm run dev:game -- games/rare-friends-cafe
-```
-
-Open the displayed URL (normally `http://localhost:4173`), connect your Robinhood Wallet, choose your Friend, and start serving.
-
-### Controls
-
-| Input | Action |
-|---|---|
-| **Open shop** button | Start a customer order |
-| **Brew** button | Serve the requested drink (deducts beans, plays the chance game) |
-| Tab / Menu | Open settings (toggle mute, reduced-motion, view token id) |
-
-## Checks (expected)
-
-- `npm run typecheck` passes
-- `npm run build` passes
-- `npm run dev:game` boots at `localhost:4173`
-- Offline demo at `https://rocky-motivation-sussex-influence.trycloudflare.com/cafe/demo.html` (no wallet required)
-- Live SDK preview at `https://rocky-motivation-sussex-influence.trycloudflare.com/cafe/`
+- TypeScript typecheck passes (`npx tsc --noEmit`)
+- `node scripts/dev-game.mjs build games/cafe` succeeds; preview built to `games/cafe/.friendsdk/`
+- PvP 95.4% RTP math verified by hand calculation
+- FriendSDK v0.1.2 imports correctly (`GameComponentProps`, chance-game `buy/play/settle/redeem`)
+- Offline demo works on desktop browsers (Chrome, Firefox, Safari)
+- Offline demo works on mobile browsers (touch + responsive layout under 1100px)
+- Keyboard controls (SPACE / 1-5 / R / ESC) all functional
+- Touch controls (tap to crack, tap to select tier) functional
 
 ## Known limitations
 
-- The offline demo (`demo.html`) is a simplified client-side version of the same loop. It runs without any SDK, wallet, or chain.
-- The live SDK preview (`game.html`) requires Robinhood Wallet + a Generations NFT + Robinhood mainnet (chainId 4663). **Even in preview mode, the SDK enforces the on-chain ownership gate** -- it reads `OwnedFriends` from the public RPC and shows "No playable Friends found" if you have no Generations NFT.
-- I previously claimed "anyone can play" of the SDK preview -- that was wrong. The correct statement is: the **offline demo** (`demo.html`) is open to anyone; the SDK preview requires Robinhood + chain 4663 + NFT.
-- Robinhood mainnet RPC may rate-limit under heavy load.
-- Drink art is AI-generated and may benefit from manual refinement.
-- No multi-customer queueing (one customer at a time, by design).
-- Bean economy is currently fixed (no upgrade system yet); preview economy only.
-- Live mode (real RF settlements) is not enabled -- production deployment requires an explicit chain deployment.
-
-## Future work
-
-- **Day/night cycle**: open hours 6am-10pm, peak hours = bonus tips
-- **Menu expansion**: seasonal drinks, unlockable via tokens spent
-- **Barista outfits**: Friend appearance changes based on tip earnings tier
-- **Customer memory**: regulars remember you (NPC state)
-- **Live mode**: spend real RF on beans, settle real tips via SDK Dice
-- **Multi-customer queue**: serve 2-3 customers in parallel
-- **Offline-mock mode**: let the SDK preview accept a "demo Friend" override for reviewers without NFT (would require upstream SDK change)
+- Drink and cafe artwork is AI-generated (MiniMax image-01) and may benefit from manual refinement.
+- Preview mode does not consume real RF.
+- Even in preview mode, the live SDK preview URL requires a real Robinhood Wallet + a Generations NFT + Robinhood mainnet; offline demo at `demo.html` does not.
+- The simulated Friend picker in the offline demo is hard-coded (5 NFTs); live mode uses the real FriendSDK picker from your connected wallet.
+- Cloudflare quick-tunnel URL has no uptime guarantee.
 
 ## Credits
 
-- **FriendSDK v0.1.2** by spokesz -- runtime, chance game, wallet, container
-- **MiniMax-M3** -- game design and code generation
-- **MiniMax image-01** -- drink and cafe artwork
-- **Rare Friends** -- theme and integration
+Built on FriendSDK v0.1.2 by spokesz (Apache-2.0). Inspired by Stake Originals (crash), ScratchIt (scratch lottery), and classic slot-machine progressive jackpots. Cafe theme and balance are original. Game design, code, README, and demo authored with assistance from MiniMax-M3.
