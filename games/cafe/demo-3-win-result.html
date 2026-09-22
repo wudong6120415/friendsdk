@@ -1125,6 +1125,22 @@ let state = {
 // Init
 // ========================================================
 function init() {
+  // State preset
+
+    state.selectedTier = 1000;
+    state.selectedFriend = FRIEND_POOL[0];
+    state.balance = 10000;
+    state.totalSpent = 4000;
+    state.totalWon = 10000;
+    state.totalLost = 4000;
+    state.winCount = 2;
+    state.bestWin = { amount: 5000, name: 'DIAMOND', emoji: '💎' };
+    state.history = [
+      { tier: 1000, prize: 1000, emoji: '🥈', name: 'Silver', amount: 1000, cls: 'silver', win: true },
+      { tier: 1000, prize: 5000, emoji: '💎', name: 'Diamond', amount: 5000, cls: 'diamond', win: true },
+      { tier: 1000, prize: 0, emoji: '💀', name: 'Empty', amount: 0, cls: 'empty', win: false },
+      { tier: 1000, prize: 2000, emoji: '🥇', name: 'Gold', amount: 2000, cls: 'gold', win: true },
+    ];
   // URL hash presets for screenshot tools
   // Format: #tier=mega&friend=9999&win=1
   const hash = window.location.hash.slice(1);

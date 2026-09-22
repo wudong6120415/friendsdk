@@ -1125,6 +1125,10 @@ let state = {
 // Init
 // ========================================================
 function init() {
+  // State preset
+
+    state.selectedTier = 10000;
+    state.selectedFriend = FRIEND_POOL[4];
   // URL hash presets for screenshot tools
   // Format: #tier=mega&friend=9999&win=1
   const hash = window.location.hash.slice(1);

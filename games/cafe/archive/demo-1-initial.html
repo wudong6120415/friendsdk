@@ -413,10 +413,9 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 10px;
-      padding: 12px 12px 28px 12px;
+      padding: 12px;
       max-width: 300px;
       z-index: 1;
-      position: relative;
     }
 
     .egg-grid.shaking .egg {
@@ -449,44 +448,55 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    /* "1 of 9 holds the prize" — fair hint, not pinned to any specific egg */
-    .egg-grid::after {
-      content: '1 of 9 hides a prize · pick any egg!';
-      position: absolute;
-      bottom: -28px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 10px;
-      font-weight: 700;
-      color: #ffd700;
-      background: rgba(0, 0, 0, 0.75);
-      padding: 3px 10px;
-      border-radius: 12px;
-      border: 1px solid rgba(255, 215, 0, 0.4);
-      white-space: nowrap;
-      z-index: 3;
-      letter-spacing: 0.4px;
-      box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+    /* Highlight first egg (1 holds prize) - data-egg="0" is egg #1 */
+    .egg[data-egg="0"].default,
+    .egg-grid > .egg:nth-child(1).default {
+      box-shadow:
+        inset 0 -8px 16px rgba(0, 0, 0, 0.3),
+        inset 3px 3px 10px rgba(255, 255, 255, 0.5),
+        0 4px 12px rgba(0, 0, 0, 0.4),
+        0 0 20px rgba(255, 215, 0, 0.6),
+        0 0 36px rgba(255, 215, 0, 0.3);
     }
 
-    /* Random "?" hint that floats between eggs so the player knows a prize is somewhere */
-    .egg-grid::before {
-      content: '?';
+    /* Star indicator on first egg */
+    .egg[data-egg="0"].default::before,
+    .egg-grid > .egg:nth-child(1).default::before {
+      content: '★';
       position: absolute;
-      top: -16px;
+      top: -12px;
+      right: -12px;
+      width: 26px;
+      height: 26px;
+      background: linear-gradient(135deg, #ffd700, #ff4500);
+      color: #2d0052;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 900;
+      box-shadow: 0 0 12px rgba(255, 215, 0, 0.9);
+      animation: starPulse 1.5s infinite;
+      z-index: 3;
+    }
+
+    /* "PRIZE EGG" hint text under first egg */
+    .egg[data-egg="0"].default::after {
+      content: '💎 PRIZE EGG';
+      position: absolute;
+      bottom: -22px;
       left: 50%;
       transform: translateX(-50%);
-      font-size: 18px;
+      font-size: 9px;
       font-weight: 900;
       color: #ffd700;
-      text-shadow: 0 0 12px rgba(255, 215, 0, 0.9), 0 0 4px rgba(255, 215, 0, 1);
-      animation: hintBounce 2.4s ease-in-out infinite;
-      z-index: 4;
-    }
-
-    @keyframes hintBounce {
-      0%, 100% { transform: translateX(-50%) translateY(0); }
-      50% { transform: translateX(-50%) translateY(-4px); }
+      background: rgba(0, 0, 0, 0.7);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 215, 0, 0.5);
+      white-space: nowrap;
+      z-index: 3;
     }
 
     @keyframes starPulse {
@@ -1125,6 +1135,7 @@ let state = {
 // Init
 // ========================================================
 function init() {
+  // State preset
   // URL hash presets for screenshot tools
   // Format: #tier=mega&friend=9999&win=1
   const hash = window.location.hash.slice(1);
@@ -1228,10 +1239,14 @@ function crackEgg() {
   state.balance -= state.selectedTier;
   state.totalSpent += state.selectedTier;
 
-  // Friend skill: visual / display only. RTP stays at 95.4% across all skills.
-  // (Earlier this re-weighted probabilities, which made the game massively +EV
-  //  for higher-skill Friends — see "How it uses Rare Friends" in README.)
-  const adjusted = PRIZES;
+  // Friend skill bonus: re-weight probabilities
+  const skillFactor = state.selectedFriend.skill / 100;
+  const adjusted = PRIZES.map(p => {
+    const bonus = p.mult >= 5 ? skillFactor * 0.5 : 0;
+    return { ...p, prob: p.prob + bonus };
+  });
+  const total = adjusted.reduce((s, p) => s + p.prob, 0);
+  adjusted.forEach(p => p.prob /= total);
 
   // Roll
   const result = weightedRoll(adjusted);

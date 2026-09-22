@@ -73,9 +73,11 @@ All screenshots captured from `demo.html` with chrome headless rendering. The Fr
 
 The remaining 5% is the house rake — not player-returned and not exposed to player outcomes. The pool cannot drain.
 
-### Master Barista bonus
+### Master Barista visual (no RTP change)
 
-Friends with skill 80–100 (Master Baristas) get a +20% relative shift in the weights of Epic, Mythic, and GRAND. The expected return stays at 95.4% — the shift only moves variance toward bigger payouts.
+Friends with skill 80–100 (Master Baristas) get a **visual** boost — the skill badge in the header is gold (vs. blue for Skilled, gray for Novice) and the "Friend skill bonus" text is highlighted. The bonus is purely cosmetic: the 95.4% PvP RTP holds for every Friend.
+
+> **Earlier mistake:** the first implementation re-weighted probabilities so Master Baristas had a higher chance of Mythic / GRAND. This made the game +EV (skill 95 Friend had ~2400% RTP) and broke the house-edge model. v9.4 removed the re-weighting. See PR #10 history for the full story.
 
 ### Measured simulation (10,000 plays)
 
