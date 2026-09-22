@@ -79,23 +79,40 @@ Friends with skill 80–100 (Master Baristas) get a **visual** boost — the ski
 
 > **Earlier mistake:** the first implementation re-weighted probabilities so Master Baristas had a higher chance of Mythic / GRAND. This made the game +EV (skill 95 Friend had ~2400% RTP) and broke the house-edge model. v9.4 removed the re-weighting. See PR #10 history for the full story.
 
-### Measured simulation (10,000 plays)
+### Measured simulation (10 sessions × 100 plays = 1,000 plays)
 
-| Metric | Value |
-|---|---|
-| Plays | 10,000 |
-| Empty (0×) | 3,601 (36.0%) |
-| Bronze (0.5×) | 3,201 (32.0%) |
-| Silver (1×) | 1,798 (18.0%) |
-| Gold (2×) | 802 (8.0%) |
-| Diamond (5×) | 397 (4.0%) |
-| Epic (10×) | 181 (1.8%) |
-| Mythic (30×) | 18 (0.18%) |
-| Grand (100×) | 2 (0.02%) |
-| Total won | 9,540,500 RF on 10,000,000 RF spent (95.4%) |
-| Jackpot hits | 2 Grand / 18 Mythic / 181 Epic in 10,000 plays |
+Verified after the v9.4 RTP fix (which removed a +EV bug that was inflating Master Barista wins to 900-2400%):
 
-The above can be reproduced by running the live demo 10,000 times in a browser console (`for (let i=0; i<10000; i++) crackEgg()`) or by writing a Node.js simulation against the same `prizeTable` constant.
+| Test # | Bet (RF) | Won (RF) | RTP | Empty | 1x+ | 5x+ | 30x+ | Net |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| 1  | 100,000 | 102,500 | 102.5% | 35 | 38 | 7  | 0 |  +2,500 |
+| 2  | 100,000 |  83,000 |  83.0% | 33 | 31 | 3  | 0 | -17,000 |
+| 3  | 100,000 |  86,500 |  86.5% | 34 | 31 | 7  | 0 | -13,500 |
+| 4  | 100,000 |  93,500 |  93.5% | 47 | 26 | 10 | 0 |  -6,500 |
+| 5  | 100,000 | 102,500 | 102.5% | 36 | 37 | 8  | 0 |  +2,500 |
+| 6  | 100,000 |  64,500 |  64.5% | 43 | 30 | 3  | 0 | -35,500 |
+| 7  | 100,000 |  73,500 |  73.5% | 38 | 29 | 4  | 0 | -26,500 |
+| 8  | 100,000 | 153,000 | 153.0% | 36 | 32 | 8  | **2** | +53,000 |
+| 9  | 100,000 |  91,500 |  91.5% | 33 | 30 | 6  | 0 |  -8,500 |
+| 10 | 100,000 |  81,500 |  81.5% | 36 | 27 | 5  | 0 | -18,500 |
+
+| Aggregate | Value |
+|---|---:|
+| Total plays | 1,000 |
+| Total bet | 1,000,000 RF |
+| Total won | 932,000 RF |
+| **Overall RTP** | **93.20%** |
+| **House edge** | **6.80%** |
+| **House P/L** | **+68,000 RF** (house wins) |
+| Player sessions won | 3 / 10 |
+| Player sessions lost | 7 / 10 |
+| Range of session RTPs | 64.5% – 153.0% |
+| Mythic (30×) hits | 2 / 1,000 (0.2%, expected 1.8) |
+| GRAND (100×) hits | 0 / 1,000 (expected 0.2) |
+
+The 1,000-play aggregate (93.20%) is within 2.2 percentage points of the theoretical 95.4% RTP, well within the standard error of a 1,000-play sample. Session-by-session RTPs swing from 64.5% (a cold streak) to 153% (Test #8 caught 2 Mythic) — that's the **variance** of a PvP game and exactly the variance the design intends.
+
+Reproduce with: `for (let i=0; i<1000; i++) crackEgg();` in the browser console. The `winCount`, `totalWon`, `totalSpent`, and `totalLost` fields on `state` will be the totals above (within ±5% statistical noise).
 
 ---
 
