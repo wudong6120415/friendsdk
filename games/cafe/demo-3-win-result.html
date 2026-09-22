@@ -116,6 +116,24 @@
     .stat-pill-value.green { color: #00ff64; }
     .stat-pill-value.red { color: #ff4444; }
 
+    /* Live mode launch pill (clickable) */
+    a.stat-pill.live-launch {
+      text-decoration: none;
+      cursor: pointer;
+      background: linear-gradient(135deg, rgba(255, 215, 0, 0.18), rgba(255, 140, 0, 0.18));
+      border: 1px solid rgba(255, 215, 0, 0.5);
+      transition: transform 0.15s ease, background 0.15s ease;
+    }
+    a.stat-pill.live-launch:hover {
+      background: linear-gradient(135deg, rgba(255, 215, 0, 0.32), rgba(255, 140, 0, 0.32));
+      transform: translateY(-1px);
+    }
+    a.stat-pill.live-launch .stat-pill-value.live-arrow {
+      font-size: 12px;
+      color: #ffd700;
+      letter-spacing: 0.5px;
+    }
+
     /* ==================================================== */
     /* LEFT PANEL: Game rules                              */
     /* ==================================================== */
@@ -900,6 +918,11 @@
         <div class="stat-pill-label">Net P/L</div>
         <div class="stat-pill-value" id="today-pnl">+0</div>
       </div>
+      <a class="stat-pill live-launch" href="./index.html" id="live-launch"
+         title="Open the live SDK build (requires Robinhood Wallet + a Generations NFT)">
+        <div class="stat-pill-label">Live mode</div>
+        <div class="stat-pill-value live-arrow">Try with wallet →</div>
+      </a>
     </div>
   </div>
 
