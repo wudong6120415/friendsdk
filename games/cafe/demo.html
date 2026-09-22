@@ -1135,8 +1135,41 @@ let state = {
 // Init
 // ========================================================
 function init() {
+  // URL hash presets for screenshot tools
+  // Format: #tier=mega&friend=9999&win=1
+  const hash = window.location.hash.slice(1);
+  let hashTierSet = false;
+  if (hash) {
+    const params = new URLSearchParams(hash);
+    const tierMap = { tiny: 500, small: 1000, medium: 2000, large: 5000, mega: 10000 };
+    const t = params.get('tier');
+    if (t && tierMap[t]) {
+      state.selectedTier = tierMap[t];
+      hashTierSet = true;
+    }
+    const fr = params.get('friend');
+    if (fr) {
+      const idx = state.friends.findIndex(f => String(f.tokenId) === fr);
+      if (idx >= 0) state.selectedFriend = idx;
+    }
+    const win = params.get('win');
+    if (win) {
+      state.balance = 15000;
+      state.stats.totalSpent = 1000;
+      state.stats.totalWon = 15000;
+      state.stats.netProfit = 14000;
+      state.stats.bestWin = { amount: 15000, name: 'EPIC', emoji: '🌟', multiplier: 10 };
+    }
+  }
   renderFriend();
   renderFriendPicker();
+  if (hashTierSet) {
+    // Sync UI to hash-preselected tier
+    document.querySelectorAll('.tier-btn').forEach(b => {
+      b.classList.toggle('selected', parseInt(b.dataset.tier) === state.selectedTier);
+    });
+    document.getElementById('crack-cost').textContent = state.selectedTier.toLocaleString('en-US');
+  }
   updateUI();
   document.getElementById('crack-cost').textContent = state.selectedTier.toLocaleString('en-US');
   // Egg click handlers
@@ -1370,6 +1403,7 @@ function updateUI() {
 
   // Update history count
   document.getElementById('history-count').textContent = state.history.length;
+  renderHistory();
 }
 
 function renderHistory() {
