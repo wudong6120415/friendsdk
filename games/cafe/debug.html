@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Egg Smash — Wallet Diagnostic</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    background: #0a0a14;
+    color: #fff;
+    min-height: 100vh;
+    padding: 24px;
+    max-width: 920px;
+    margin: 0 auto;
+  }
+  h1 { color: #ffd700; margin-bottom: 8px; font-size: 24px; }
+  h2 { color: #ffd700; margin-top: 24px; margin-bottom: 12px; font-size: 18px; border-bottom: 1px solid #333; padding-bottom: 6px; }
+  .sub { color: #888; font-size: 13px; margin-bottom: 24px; }
+  .box {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+  }
+  .row { display: flex; gap: 12px; align-items: center; margin: 8px 0; flex-wrap: wrap; }
+  .label { color: #888; min-width: 200px; font-size: 13px; }
+  .value { color: #fff; font-size: 14px; word-break: break-all; }
+  .ok { color: #00ff64; }
+  .bad { color: #ff4444; }
+  .warn { color: #ffb800; }
+  .btn {
+    background: linear-gradient(135deg, #ffd700, #ff8c00);
+    color: #000;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 14px;
+    margin: 4px;
+  }
+  .btn:hover { filter: brightness(1.1); }
+  .btn.secondary { background: rgba(255, 255, 255, 0.1); color: #fff; }
+  pre {
+    background: #000;
+    border: 1px solid #333;
+    border-radius: 4px;
+    padding: 12px;
+    overflow-x: auto;
+    font-size: 12px;
+    color: #00ff64;
+    max-height: 280px;
+    overflow-y: auto;
+  }
+  .check-list { list-style: none; padding: 0; }
+  .check-list li { padding: 6px 0; border-bottom: 1px dashed #222; }
+  .check-list .pass { color: #00ff64; }
+  .check-list .fail { color: #ff4444; }
+  .check-list .pending { color: #888; }
+</style>
+</head>
+<body>
+
+<h1>🥚 Rare Friends Egg Smash — Wallet Diagnostic</h1>
+<p class="sub">Helps debug "wallet not connecting" issues with Robinhood mainnet (chainId 4663).</p>
+
+<h2>1. Browser state</h2>
+<div class="box">
+  <div class="row"><div class="label">window.ethereum present?</div><div class="value" id="eth-present">—</div></div>
+  <div class="row"><div class="label">EIP-6963 announce seen?</div><div class="value" id="eip6963-seen">—</div></div>
+  <div class="row"><div class="label">Announced wallets:</div><div class="value" id="announce-count">—</div></div>
+  <div class="row"><div class="label">Detected chainId (if any):</div><div class="value" id="eth-chainid">—</div></div>
+</div>
+
+<h2>2. Wallet actions</h2>
+<div class="box">
+  <div class="row">
+    <button class="btn" id="force-eip6963">🔁 Force EIP-6963 re-announce</button>
+    <button class="btn" id="recheck">🔍 Re-check window.ethereum</button>
+    <button class="btn secondary" id="connect-btn">Connect via window.ethereum</button>
+  </div>
+  <div class="row" id="connect-result" style="display:none;">
+    <div class="label">Result:</div><div class="value" id="connect-text">—</div>
+  </div>
+</div>
+
+<h2>3. Chain probe (Robinhood mainnet, 4663)</h2>
+<div class="box">
+  <div class="row">
+    <button class="btn" id="probe-chain">🛰 Probe RPC at https://rpc.mainnet.chain.robinhood.com</button>
+  </div>
+  <pre id="probe-log">Click the button to test the chain RPC.</pre>
+</div>
+
+<h2>4. Diagnostic checklist</h2>
+<div class="box">
+  <ul class="check-list" id="checklist">
+    <li class="pending" id="c-eth">1. window.ethereum defined</li>
+    <li class="pending" id="c-eip6963">2. Wallet announced via EIP-6963</li>
+    <li class="pending" id="c-request">3. eth_requestAccounts responds</li>
+    <li class="pending" id="c-chainid">4. wallet returns chainId 4663</li>
+    <li class="pending" id="c-rpc">5. RPC https://rpc.mainnet.chain.robinhood.com reachable</li>
+  </ul>
+</div>
+
+<h2>5. After diagnosis</h2>
+<div class="box">
+  <p>When all 5 checks pass, click below to open the live SDK build:</p>
+  <a class="btn" href="./index.html" id="open-sdk">🎮 Open Live SDK →</a>
+  &nbsp;
+  <a class="btn secondary" href="./demo.html">🎲 Open Offline Demo →</a>
+</div>
+
+<h2>6. Live log</h2>
+<div class="box">
+  <pre id="log">Page loaded. Listening for wallet announcements...</pre>
+</div>
+
+<script>
+const logEl = document.getElementById('log');
+const announceCountEl = document.getElementById('announce-count');
+const eip6963SeenEl = document.getElementById('eip6963-seen');
+const ethPresentEl = document.getElementById('eth-present');
+const ethChainIdEl = document.getElementById('eth-chainid');
+const probeLogEl = document.getElementById('probe-log');
+const connectResultEl = document.getElementById('connect-result');
+const connectTextEl = document.getElementById('connect-text');
+
+let announcedWallets = [];
+
+function log(msg, kind = 'info') {
+  const colors = { info: '#fff', pass: '#00ff64', fail: '#ff4444', warn: '#ffb800' };
+  const line = document.createElement('div');
+  line.style.color = colors[kind] || '#fff';
+  const t = new Date().toLocaleTimeString();
+  line.textContent = `[${t}] ${msg}`;
+  logEl.appendChild(line);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+function setCheck(id, ok) {
+  const el = document.getElementById(id);
+  el.classList.remove('pending', 'pass', 'fail');
+  el.classList.add(ok ? 'pass' : 'fail');
+  el.textContent = el.textContent.replace(/^\d+\./, ok ? '✓' : '✗');
+}
+
+// Listen for EIP-6963 announces
+window.addEventListener('eip6963:announceProvider', (event) => {
+  if (!event.detail || !event.detail.info) return;
+  const { uuid, name, rdns } = event.detail.info;
+  log(`EIP-6963 announce: ${name} (${rdns || 'no rdns'})`, 'pass');
+  announcedWallets.push({ uuid, name, rdns });
+  announceCountEl.textContent = String(announcedWallets.length);
+  eip6963SeenEl.innerHTML = '<span class="ok">YES</span> (' + announcedWallets.length + ' wallet(s))';
+  setCheck('c-eip6963', true);
+});
+
+// Request wallet announces
+function requestAnnounce() {
+  log('Dispatching eip6963:requestProvider…', 'info');
+  window.dispatchEvent(new Event('eip6963:requestProvider'));
+}
+
+// Check window.ethereum
+async function checkEthereum() {
+  if (typeof window.ethereum !== 'undefined') {
+    ethPresentEl.innerHTML = '<span class="ok">YES</span>';
+    setCheck('c-eth', true);
+    log('window.ethereum detected.', 'pass');
+
+    // Try to get chainId
+    try {
+      const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+      ethChainIdEl.textContent = `${chainId} (${parseInt(chainId, 16)})`;
+      if (parseInt(chainId, 16) === 4663) {
+        ethChainIdEl.innerHTML = `<span class="ok">${chainId} (4663) — Robinhood mainnet ✓</span>`;
+        setCheck('c-chainid', true);
+      } else {
+        ethChainIdEl.innerHTML = `<span class="warn">${chainId} (${parseInt(chainId, 16)}) — not Robinhood mainnet. You will need to switch.</span>`;
+        setCheck('c-chainid', false);
+      }
+    } catch (e) {
+      log(`eth_chainId error: ${e.message}`, 'fail');
+      setCheck('c-chainid', false);
+    }
+  } else {
+    ethPresentEl.innerHTML = '<span class="bad">NO</span>';
+    setCheck('c-eth', false);
+    log('window.ethereum is undefined. No EIP-1193 wallet detected.', 'fail');
+  }
+}
+
+// Try to connect via window.ethereum
+async function connectViaEthereum() {
+  if (typeof window.ethereum === 'undefined') {
+    connectTextEl.innerHTML = '<span class="bad">No window.ethereum to connect to.</span>';
+    connectResultEl.style.display = 'flex';
+    return;
+  }
+  try {
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    log(`eth_requestAccounts OK: ${accounts[0] || '(no account)'}`, 'pass');
+    setCheck('c-request', true);
+    connectTextEl.innerHTML = `<span class="ok">Connected: ${accounts[0] || '(no account)'}</span>`;
+    connectResultEl.style.display = 'flex';
+  } catch (e) {
+    log(`eth_requestAccounts error: ${e.message}`, 'fail');
+    setCheck('c-request', false);
+    connectTextEl.innerHTML = `<span class="bad">${e.message}</span>`;
+    connectResultEl.style.display = 'flex';
+  }
+}
+
+// Probe Robinhood mainnet RPC
+async function probeRpc() {
+  probeLogEl.textContent = 'Probing…';
+  try {
+    const res = await fetch('https://rpc.mainnet.chain.robinhood.com', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'eth_blockNumber',
+        params: []
+      })
+    });
+    if (!res.ok) {
+      probeLogEl.textContent = `HTTP ${res.status} ${res.statusText}\n\nThis RPC endpoint may not be reachable from this network.`;
+      setCheck('c-rpc', false);
+      log(`RPC HTTP error: ${res.status}`, 'fail');
+      return;
+    }
+    const data = await res.json();
+    if (data.error) {
+      probeLogEl.textContent = `JSON-RPC error:\n${JSON.stringify(data.error, null, 2)}`;
+      setCheck('c-rpc', false);
+      log(`RPC JSON-RPC error: ${data.error.message}`, 'fail');
+    } else {
+      probeLogEl.textContent = `OK. Latest block number: ${data.result}\n\nRPC is reachable and responding.`;
+      setCheck('c-rpc', true);
+      log(`RPC OK. Block: ${data.result}`, 'pass');
+    }
+  } catch (e) {
+    probeLogEl.textContent = `Network error: ${e.message}\n\nThe RPC may be blocked by:\n- A corporate firewall\n- A CSP that doesn't allow connect-src to rpc.mainnet.chain.robinhood.com\n- A proxy that doesn't allow this domain`;
+    setCheck('c-rpc', false);
+    log(`RPC probe error: ${e.message}`, 'fail');
+  }
+}
+
+// Wire up buttons
+document.getElementById('force-eip6963').addEventListener('click', requestAnnounce);
+document.getElementById('recheck').addEventListener('click', checkEthereum);
+document.getElementById('connect-btn').addEventListener('click', connectViaEthereum);
+document.getElementById('probe-chain').addEventListener('click', probeRpc);
+
+// Initial run
+window.addEventListener('load', () => {
+  log('Window loaded. Starting diagnostic.', 'info');
+  checkEthereum();
+  requestAnnounce();
+  // Also poll for window.ethereum for 5 seconds
+  let pollCount = 0;
+  const pollInterval = setInterval(() => {
+    pollCount++;
+    if (typeof window.ethereum !== 'undefined' && !ethPresentEl.innerHTML.includes('YES')) {
+      log('window.ethereum appeared (delayed inject).', 'pass');
+      checkEthereum();
+    }
+    if (pollCount >= 10) clearInterval(pollInterval);
+  }, 500);
+});
+</script>
+
+</body>
+</html>
